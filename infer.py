@@ -19,11 +19,11 @@ def parse_args():
     parser.add_argument('--split', type=str, default='train', help='split of dataset to use.')
     parser.add_argument('--BS', type=int, default=36, help='size of batch')
     parser.add_argument('--samples', type=int, default=2, help='number of samples')
-    parser.add_argument('--loadName', type=int, default=-1, help='numeral to loadg.')
-    parser.add_argument('--saveName', type=int, default=-1, help='numeral to save.')
+    parser.add_argument('--loadName', type=int, default=-1, help='number to use to load model.')
+    parser.add_argument('--saveName', type=int, default=-1, help='number to use to save model output.')
     parser.add_argument('--noise', type=float, default=-1, help='noisevar to denoise.')
-    parser.add_argument('--inpaint', type=int, default=-1, help='inpaint mask to use. 0 ')
-    parser.add_argument('--examples', default=-1,help='delimited list input ofexamples to do eg "1,5,4,2" ', type=str)
+    parser.add_argument('--inpaint', type=int, default=-1, help='inpaint mask to use. 0 for half image 1 for random default is none')
+    parser.add_argument('--examples', default=-1,help='delimited list input ofexamples to do eg "1,5,4,2" if none will generate model samples only', type=str)
     parser.add_argument('--num_intermediate_plots',default=1,type=int,help='How many steps to plot')
     args = parser.parse_args()
     
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         spatial_width = 28
         Imean = (0.5,0.5,0.5)#tuple of means for each channel
         Istd = (0.5,0.5,0.5)#STD for each channel
-        transforms = [trans.Resize(spatial_width),trans.CenterCrop(spatial_width),trans.ToTensor(),trans.Normalize(Imean,Istd)]
+        transforms = [trans.Resize(spatial_width),trans.CenterCrop(spatial_width),trans.ToTensor()]#,trans.Normalize(Imean,Istd)]
         transforms = trans.Compose(transforms)#compose the transformations
         if args.split=='train':
             dataset = dset.ImageFolder(root=(data_dir+'MnIsT/train/'),transform=transforms)
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         spatial_width = 32
         Imean = (0.5,0.5,0.5)#tuple of means for each channel
         Istd = (0.5,0.5,0.5)#STD for each channel
-        transforms = [trans.Resize(spatial_width),trans.CenterCrop(spatial_width),trans.ToTensor(),trans.Normalize(Imean,Istd)]
+        transforms = [trans.Resize(spatial_width),trans.CenterCrop(spatial_width),trans.ToTensor()]#,trans.Normalize(Imean,Istd)]
         transforms = trans.Compose(transforms)#compose the transformations
         if args.split=='train':
             dataset = dset.ImageFolder(root=(data_dir+'CiFaR10/train/'),transform=transforms)
@@ -86,10 +86,10 @@ if __name__ == '__main__':
     else:
         raise ValueError("Unknown but potentialy beautiful and awesome dataset %s."%args.dataset)
         exit()
-    dataloader = utilData.DataLoader(dataset, batch_size=args.BS,shuffle=True,num_workers=0)
+    dataloader = utilData.DataLoader(dataset, batch_size=args.BS,shuffle=False,num_workers=0)
     #now unifroem 
-    scl = .9#1./np.sqrt(np.mean((Xbatch-np.mean(Xbatch))**2))
-    shft = 0.5#-np.mean(Xbatch*scl)
+    shft=Sinopharm.load(model_dir+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)[3]
+    scl=Sinopharm.load(model_dir+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)[4]
     # scale is applied before shift
     baseline_uniform_noise = 1./255. # appropriate for MNIST and CIFAR10 Fuel datasets, which are scaled [0,1]
     uniform_noise = baseline_uniform_noise/scl
