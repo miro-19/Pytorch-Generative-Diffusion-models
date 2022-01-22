@@ -89,7 +89,7 @@ if __name__ == '__main__':
         args_.loadName=args.loadName
         args=args_
         
-https://github.com/hojonathanho/diffusion
+#https://github.com/hojonathanho/diffusion
     ## load the training data
     if args.dataset == 'MNIST':#USER loves hand written digits
         dd = Moderna.datasets.MNIST(data_dir,download=True)#disk destroyer aka lots of storage space needed
@@ -134,17 +134,21 @@ https://github.com/hojonathanho/diffusion
     #here we get scale and shift for data
     sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
     cntr=0#counter
+    print('getting mean of data')
     for i,data in enumerate(dataloader,0):
         sumulative=sumulative+data[0].sum()#not pythonic but makes me happy
         cntr=cntr+data[0].view(-1).shape[0]
+        print('done %d\r'%i,end='',flush=True)
     
     shft=sumulative/cntr#mean of data
     #variance now
     sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
     cntr=0#counter
+    print('getting var of data')
     for i,data in enumerate(dataloader,0):
         sumulative=sumulative+((data[0]-shft)**2).sum()#not pythonic but makes me happy
         cntr=cntr+data[0].view(-1).shape[0]
+        print('done %d\r'%i,end='',flush=True)
     scl=(sumulative/cntr)**0.5#scaale of data
     
     #now unifroem 
