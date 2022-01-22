@@ -136,20 +136,20 @@ if __name__ == '__main__':
     cntr=0#counter
     print('getting mean of data')
     for i,data in enumerate(dataloader,0):
-        sumulative=sumulative+data[0].sum()#not pythonic but makes me happy
+        sumulative=sumulative+data[0].to(device).sum()#not pythonic but makes me happy
         cntr=cntr+data[0].view(-1).shape[0]
         print('done %d\r'%i,end='',flush=True)
     
-    shft=sumulative/cntr#mean of data
+    shft=(sumulative/cntr).item()#mean of data
     #variance now
     sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
     cntr=0#counter
     print('getting var of data')
     for i,data in enumerate(dataloader,0):
-        sumulative=sumulative+((data[0]-shft)**2).sum()#not pythonic but makes me happy
+        sumulative=sumulative+((data[0].to(device)-shft)**2).sum()#not pythonic but makes me happy
         cntr=cntr+data[0].view(-1).shape[0]
         print('done %d\r'%i,end='',flush=True)
-    scl=(sumulative/cntr)**0.5#scaale of data
+    scl=((sumulative/cntr)**0.5).item()#scaale of data
     
     #now unifroem 
     # scale is applied before shift
