@@ -139,6 +139,8 @@ if __name__ == '__main__':
         sumulative=sumulative+data[0].to(device).sum()#not pythonic but makes me happy
         cntr=cntr+data[0].view(-1).shape[0]
         print('done %d\r'%i,end='',flush=True)
+        if i==19:
+            break
     
     shft=(sumulative/cntr).item()#mean of data
     #variance now
@@ -149,7 +151,9 @@ if __name__ == '__main__':
         sumulative=sumulative+((data[0].to(device)-shft)**2).sum()#not pythonic but makes me happy
         cntr=cntr+data[0].view(-1).shape[0]
         print('done %d\r'%i,end='',flush=True)
-    scl=((sumulative/cntr)**0.5).item()#scaale of data
+        if i==19:
+            break
+    scl=((sumulative/(cntr-1))**0.5).item()#scaale of data
     
     #now unifroem 
     # scale is applied before shift
