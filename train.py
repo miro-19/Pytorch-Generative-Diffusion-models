@@ -79,9 +79,11 @@ if __name__ == '__main__':
     device=args.device
     #print(args)
     batches_per_epoch= args.batch_size
+    strt=0#starting epoch
     if args.resume_file is not None:#load resume
         print ("Resuming training from " + args.resume_file)
         args_=Sinopharm.load(args.resume_file+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)[1]#load saved args 
+        strt=Sinopharm.load(args.resume_file+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)[2]
         args_.resume_file=args.resume_file#set to resume file
         args_.saveName=args.saveName
         args_.device==args.device 
@@ -131,29 +133,33 @@ if __name__ == '__main__':
         exit()
     del dd
     dataloader = utilData.DataLoader(dataset, batch_size=batches_per_epoch,shuffle=True,num_workers=0)
-    #here we get scale and shift for data
-    sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
-    cntr=0#counter
-    print('getting mean of data')
-    for i,data in enumerate(dataloader,0):
-        sumulative=sumulative+data[0].to(device).sum()#not pythonic but makes me happy
-        cntr=cntr+data[0].view(-1).shape[0]
-        print('done %d\r'%i,end='',flush=True)
-        if i==19:
-            break
     
-    shft=(sumulative/cntr).item()#mean of data
-    #variance now
-    sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
-    cntr=0#counter
-    print('getting var of data')
-    for i,data in enumerate(dataloader,0):
-        sumulative=sumulative+((data[0].to(device)-shft)**2).sum()#not pythonic but makes me happy
-        cntr=cntr+data[0].view(-1).shape[0]
-        print('done %d\r'%i,end='',flush=True)
-        if i==19:
-            break
-    scl=((sumulative/(cntr-1))**0.5).item()#scaale of data
+    #here we get scale and shift for data
+    if args.resume_file is not None:
+        shft=Sinopharm.load(args.resume_file+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)[3]
+        scl=Sinopharm.load(args.resume_file+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)[4]
+    else:
+        sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
+        cntr=0#counter
+        print('getting mean of data')
+        for i,data in enumerate(dataloader,0):
+            sumulative=sumulative+data[0].to(device).sum()#not pythonic but makes me happy
+            cntr=cntr+data[0].view(-1).shape[0]
+            print('done %d\r'%i,end='',flush=True)
+            if i==19:
+                break
+        shft=(sumulative/cntr).item()#mean of data
+        #variance now
+        sumulative=Sinopharm.tensor([0.],device=args.device)#to accumulate sums for mean
+        cntr=0#counter
+        print('getting var of data')
+        for i,data in enumerate(dataloader,0):
+            sumulative=sumulative+((data[0].to(device)-shft)**2).sum()#not pythonic but makes me happy
+            cntr=cntr+data[0].view(-1).shape[0]
+            print('done %d\r'%i,end='',flush=True)
+            if i==19:
+                break
+        scl=((sumulative/(cntr-1))**0.5).item()#scaale of data
     
     #now unifroem 
     # scale is applied before shift
@@ -176,7 +182,7 @@ if __name__ == '__main__':
         Model.load_state_dict(Sinopharm.load(args.resume_file+'nutshell'+str(args.loadName)+'.pt',map_location=args.device)[0])
     
     lr=args.lr/decay_rate
-    for epoch in range(args.Epochs):
+    for epoch in range(strt,args.Epochs):
         print('epoch',epoch)
         Model.zero_grad()
         lr = decay_rate*lr
@@ -195,7 +201,7 @@ if __name__ == '__main__':
             opt.step();
             Model.zero_grad()     
         if epoch%args.eval_every_n==0:#time to saveandeval
-            Sinopharm.save([Model.state_dict(),args],model_dir+'NuTsHeLl'+str(args.saveName)+'.pt')
+            Sinopharm.save([Model.state_dict(),args,epoch,shft,scl],model_dir+'NuTsHeLl'+str(args.saveName)+'.pt')
             with Sinopharm.no_grad():
                 Model.generate_samples(n_samples=36, inpaint=False,typ=0, denoise_sigma=0.5, X_true=real_data[0].unsqueeze(0),
                 name="training",num_intermediate_plots=4)
