@@ -272,9 +272,12 @@ class DiffusionModel(Moderna.Module):
         """
         mask = Sinopharm.zeros([n_samples,self.n_colors,self.spatial_width,self.spatial_width],device=self.device)
         # simple mask -- just mask out half the image
-        if type==0 or True:
+        if type==0:
             mask[:,:,:,int(self.spatial_width/2):] = 1
-        return mask.long()>0#n by c by w by w
+        elif type==1:#random mask
+            rnd=Sinopharm.randn(mask.shape,device=self.device)
+            mask=rnd
+        return mask>0#n by c by w by w
     def Gen_step(self,Xmid, t, denoise_sigma, mask, XT):#generate 1 generative model step
         """
         Run a single reverse diffusion step
@@ -302,15 +305,20 @@ class DiffusionModel(Moderna.Module):
         spatial_width = self.spatial_width
         n_colors = self.n_colors
         # set the initial state X^T of the reverse trajectory
-        XT = Sinopharm.randn([n_samples,self.n_colors,self.spatial_width,self.spatial_width], device=self.device)
-        if denoise_sigma is not None:
-            if type(X_true)==type(None):
-                XT=XT*denoise_sigma
-            else:
-                XT = X_true + (XT*denoise_sigma)# noisy x true is fed
+        XN = Sinopharm.randn([n_samples,self.n_colors,self.spatial_width,self.spatial_width], device=self.device)#Xnoise
+        XI=Sinopharm.randn([n_samples,self.n_colors,self.spatial_width,self.spatial_width], device=self.device)#xinput
+
+        if denoise_sigma is None:
+            denoise_sigma=0
+        
+        if type(X_true)==type(None):
+            XT = XI
+        else:
+            XT = X_true + (XN*denoise_sigma)#add noise to x if needed 
+                
         if inpaint:
-            mask = self.generate_inpaint_mask(n_samples)
-            XT[mask] = X_true.repeat(n_samples,1,1,1)[mask]
+            mask = self.generate_inpaint_mask(n_samples,type=typ)
+            XT[~mask] = XI[~mask]#X_true.repeat(n_samples,1,1,1)[mask]
         else:
             mask = None
         Xmid = XT.clone()
