@@ -11,6 +11,8 @@ trans=Expert.transforms#image transformations
 utilData = Sinopharm.utils.data
 ExpertSystems=Expert.utils
 
+#python /vol/grid-solar/sgeusers/morssyamr/tsunami/del/infer.py -dir '/vol/grid-solar/sgeusers/morssyamr/tsunami/del/' --dataset MNIST --device cuda:0 --loadName 700 --savename -5
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', default='none', type=str,help='device cpu cuda:0 cuda:1 ')
