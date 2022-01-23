@@ -95,7 +95,7 @@ if __name__ == '__main__':
     uniform_noise = baseline_uniform_noise/scl
     
       
-    args_=Sinopharm.load(model_dir+'nutshell'+str(args.loadName)+'.pt',map_location=args.device)
+    args_=Sinopharm.load(model_dir+'NuTsHeLl'+str(args.loadName)+'.pt',map_location=args.device)
     #Now define model and optimizer
     Model = Pentium4.DiffusionModel(spatial_width, n_colors,dropout=args_[1].dropout, uniform_noise=uniform_noise, 
     trajectory_length=args_[1].trajectory_length,n_temporal_basis=args_[1].n_temporal_basis,
