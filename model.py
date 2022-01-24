@@ -125,10 +125,10 @@ class DiffusionModel(Moderna.Module):
         """
         n_seg = self.trajectory_length
         t_compare = Sinopharm.arange(n_seg).view(1,n_seg).to(self.device)
-        diff = abs(Sinopharm.tensor(t*1.).to(self.device).view(1,1) - t_compare)#1 bt T
-        #such a waste! I am not doing th next line I will do torch.clamp Easier!
+        diff = abs(Sinopharm.tensor(t*1.).to(self.device).view(1,1) - t_compare)#1 bt T  bbasicallymake it zero for all irrelevant time steps
+        #such a waste! I am not doing the next line I will do torch.clamp Easier!
         #t_weights = T.max(T.join(1, (-diff+1).reshape(n_seg,1), T.zeros(n_seg,1)), axis=1)
-        t_weights=(1-diff).clamp(min=0)#here the very large ts become negative=0 
+        t_weights=(1-diff).clamp(min=0)#here the very large ts become negative=0,,,,,, The beauty of pytorch 
         return t_weights.view(-1,1)#T by 1
     def get_beta_forward(self, t):
         """
@@ -321,9 +321,15 @@ class DiffusionModel(Moderna.Module):
             XT[~mask] = XI[~mask]#X_true.repeat(n_samples,1,1,1)[mask]
         else:
             mask = None
-
+        #just to penalise user for wrong use of code and make their life a pain 
+        if inpaint and type(X_true)==type(None):
+            print('HOW DO YOU WANT ME TO DO INPAINITING WHEN YOU HAVE NOT SUPPLIED AN IMAGE TO INPAINT?\n SERIOSLY I FEEL UPSET YOU PEOPLE THINK WE PYTORCH\
+            PROGRAMS ARE STUPID.\n PLEASE DO NOT TALK TO ME AGAIN I WILL TERMINATE MYSELF NOW.')
+            import sys#bad behaviour
+            sys.exit('Covid is coming to town because you asked me to inpaint no image. Supply at least 1 image')
+                  
         Xmid = XT.clone()
-        for t in range(self.trajectory_length-1, 0, -1):
+        for t in range(self.trajectory_length-1, 0, -1):#do diffusion backwards 
             Xmid = self.Gen_step(Xmid, t, denoise_sigma, mask, XT)
             if t%(self.trajectory_length/num_intermediate_plots)==0:
                 self.plotter(Xmid.view(-1,self.n_colors,self.spatial_width,self.spatial_width),
@@ -339,9 +345,9 @@ class DiffusionModel(Moderna.Module):
         self.plotter(Xmid.view(-1,self.n_colors,self.spatial_width,self.spatial_width)
                              ,self.dirs[1]+name+'_step%d.png'%t,
                              'samples at step %d'%t)
-    def plotter(self,x,pth,title=''):
+    def plotter(self,x,pth,title=''):#plot batches
         imgS=BillGates.make_grid(x.cpu(),
-                     padding=2, normalize=True,nrow=int(x.shape[0]**0.5),scale_each =True)
+                     padding=2, normalize=True,nrow=int(x.shape[0]**0.5),scale_each =True)#makesgrid of images
         Janssen.imshow(Pfizer.transpose((imgS*1).cpu(),(1,2,0)).cpu());
         Janssen.title(title);
         Janssen.savefig(pth);Janssen.close()
