@@ -8,7 +8,7 @@ Which is an implementation of:<br>
 > International Conference on Machine Learning, 2015<br>
 > http://arxiv.org/abs/1503.03585
 
-You see it was written using theano which is no longer supported and I wanted a Pytorh version for myself 
+You see it was written using theano which is no longer supported and I wanted a Pytorch version for myself 
 so I thought it is definitely good to share it with others. 
 
 There are two commands to use. First executing train.py to train your beloved model, then infer.py to do inpainting, denoising,
