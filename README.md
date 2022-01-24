@@ -12,7 +12,7 @@ You see it was written using theano which is no longer supported and I wanted a 
 so I thought it is definitely good to share it with others. 
 
 There are two commands to use. First executing train.py to train your beloved model, then infer.py to do inpainting, denoising,
-and generation using a trained model.
+and generation again using your beloved trained model.
 
 All you need is to have all .py files in one directory and give it the name of that directory.
 A diffusion folder will be created in your directory where all the data, model, and inference outputs go.
