@@ -51,6 +51,8 @@ To repeat the previous thing but using a random inpainting mask that well random
 ``python /path/to/infer.py -dir '/vol/world/omicron/' --dataset MNIST --split test  --loadName 800 --savename -5 --inpaint 1 --examples '10,4,2,5'``
 
 
-**Contact- ORIGINAL AUTHOR** - The original author (sohl, link to repo above) would love to hear from you. Let him know what goes right/wrong! <jaschasd@google.com>
+**Contact- ORIGINAL AUTHOR** - The original author (Sohl, link to repo above) would love to hear from you. Let him know what goes right/wrong! <jaschasd@google.com>
 
-**Contact- miro** - Now is my turn. I would love to hear from you. Let me know what goes right/wrong! <morssyamr@myvuw.ac.nz>
+**Contact- miro** - Now is my turn. I would love to hear from you. Let me know what goes right/wrong <morssyamr@myvuw.ac.nz>, 
+but please do not send an email when it is raining the mailbox gets wet. 
+
