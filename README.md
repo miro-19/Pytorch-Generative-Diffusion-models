@@ -30,7 +30,7 @@ To resume training a model saved in omicron directory with the suffix 500 on mni
 Everything else will be loaded from the saved model. You can also input training parameters and model parameters otherwise default values are used.
 Not supplying a device will train using cpu. Good luck having your model ready before the end of the century. 
 
-To use a trined model (e.g.  the one above with suffix 800) to generate samples, and save results using the suffix 5 just run:
+To use a trained model (e.g.  the one above with suffix 800) to generate samples, and save results using the suffix 5 just run:
 
 ``python /path/to/infer.py -dir '/vol/world/omicron/' --dataset MNIST  --loadName 800 --savename -5 --device cpu``
 
